@@ -1,5 +1,29 @@
 {
+    "version": "2.0.0",
     "tasks": [
+        {
+            "label": "Build using Makefile",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "all"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "This task builds the project using the Makefile"
+        },
+        {
+            "label": "Clean using Makefile",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "group": "none",
+            "problemMatcher": []
+        },
         {
             "type": "cppbuild",
             "label": "C/C++: gcc sestavit aktivní soubor",
@@ -7,7 +31,8 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "${workspaceFolder}/Linked_list/link_list.c",   // Hlavní soubor
+                "${workspaceFolder}/Linked_list/list.c",        // Další soubor obsahující funkci vypis_Seznam
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],
@@ -23,6 +48,5 @@
             },
             "detail": "Úloha vygenerovaná ladicím programem"
         }
-    ],
-    "version": "2.0.0"
+    ]
 }

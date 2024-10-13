@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch link_list",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/link_list",  // Váš výstupní program
+            "args": [],  // Zde můžete přidat argumenty pro váš program, pokud nějaké má
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "Build using Makefile",  // Zde se spustí úloha, která volá Makefile
+            "miDebuggerPath": "/usr/bin/gdb",  // Cesta k GDB
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
