@@ -5,10 +5,22 @@
 #include <stdbool.h>
 #include "list.h"
 
+void run_menu(Node** head);
+
 #define INT_MIN (-2147483648)
 #define INT_MAX 2147483647
 #define MIN_MENU 1      // První položka menu
 #define MAX_MENU 7      // Poslední položka menu (aktualizováno na 7 kvůli nápovědě)
+
+// Funkce main pro hlavní aplikaci
+#ifndef TESTING
+int main() {
+    // Vaše původní implementace main pro program
+    Node* head = NULL;  // Začátek spojového seznamu
+    run_menu(&head);    // Spuštění hlavní smyčky menu
+    return 0;
+}
+#endif
 
 /**
  * Program, který implementuje jednosměrný spojový seznam pro ukládání celých čísel (int).
@@ -36,7 +48,7 @@ int tiskni_menu();
  * @param rozsah_cisel Pokud true, ověřuje, zda vstup spadá do rozsahu menu (MIN_MENU - MAX_MENU).
  * @return Platná hodnota zadaná uživatelem.
  */
-int platny_vstup(char *zprava, bool rozsah_cisel);
+int platny_vstup(const char *zprava, bool rozsah_cisel);
 
 /**
  * Validuje vstupní řetězec a převádí jej na celé číslo.
@@ -44,7 +56,7 @@ int platny_vstup(char *zprava, bool rozsah_cisel);
  * @param buffer Vstupní řetězec od uživatele.
  * @return Platná hodnota zadaná uživatelem nebo -1 při chybě.
  */
-int validate_input(char *buffer);
+int validate_input(const char *buffer);
 
 /**
  * Ověřuje, zda je hodnota v platném rozsahu menu.
@@ -98,12 +110,6 @@ typedef enum {
     EXIT_PROGRAM       /**< Ukončení programu a uvolnění paměti */
 } MenuOption;
 
-int main() {
-    Node* head = NULL;  // Začátek spojového seznamu
-    run_menu(&head);    // Spuštění hlavní smyčky menu
-    return 0;
-}
-
 void run_menu(Node** head) {
     bool running = true;
     while (running) {
@@ -123,43 +129,44 @@ void run_menu(Node** head) {
                 int value = platny_vstup("Zadejte hodnotu: ", false);
                 Node* found = find_element(*head, value);
                 if (found != NULL) {
-                    printf("Prvek s hodnotou %d nalezen v seznamu.", value);
+                    printf("Prvek s hodnotou %d nalezen v seznamu.\n", value);
                 } else {
-                    printf("Prvek s hodnotou %d není v seznamu.", value);
+                    printf("Prvek s hodnotou %d není v seznamu.\n", value);
                 }
                 break;
             }
             case REMOVE_ELEMENT: {
                 int value = platny_vstup("Zadejte hodnotu: ", false);
                 if (remove_element(head, value)) {
-                    printf("Prvek s hodnotou %d byl odstraněn.", value);
+                    printf("Prvek s hodnotou %d byl odstraněn.\n", value);
                 } else {
-                    printf("Prvek s hodnotou %d nebyl nalezen v seznamu.", value);
+                    printf("Prvek s hodnotou %d nebyl nalezen v seznamu.\n", value);
                 }
                 break;
             }
             case DISPLAY_HELP:
-                printf("Nápověda:"
-                       "1. Přidat prvek na začátek - Přidá nový prvek na začátek seznamu."
-                       "2. Přidat prvek na konec - Přidá nový prvek na konec seznamu."
-                       "3. Vypsat seznam - Vypíše všechny prvky aktuálně uložené v seznamu."
-                       "4. Vyhledat prvek - Umožní zadat hodnotu a vyhledat prvek v seznamu."
-                       "5. Odstranit prvek - Umožní zadat hodnotu a odstranit prvek ze seznamu."
-                       "6. Zobrazit nápovědu - Zobrazí tento popis všech položek menu."
-                       "7. Ukončit program - Uvolní paměť a ukončí program.\n");
+                printf("\nNápověda:\n"
+                       "1. Přidat prvek na začátek - Přidá nový prvek na začátek seznamu.\n"
+                       "2. Přidat prvek na konec - Přidá nový prvek na konec seznamu.\n"
+                       "3. Vypsat seznam - Vypíše všechny prvky aktuálně uložené v seznamu.\n"
+                       "4. Vyhledat prvek - Umožní zadat hodnotu a vyhledat prvek v seznamu.\n"
+                       "5. Odstranit prvek - Umožní zadat hodnotu a odstranit prvek ze seznamu.\n"
+                       "6. Zobrazit nápovědu - Zobrazí tento popis všech položek menu.\n"
+                       "7. Ukončit program - Uvolní paměť a ukončí program.\n\n");
                 break;
             case EXIT_PROGRAM:
                 running = false;
                 free_list(*head);
-                printf("Program byl ukončen");
+                printf("Program byl ukončen\n");
                 break;
             default:
+                printf("Neplatná volba. Zkuste to znovu.\n");
                 break;
         }
     }
 }
 
-int platny_vstup(char *zprava, bool rozsah_cisel){
+int platny_vstup(const char *zprava, bool rozsah_cisel){
     bool platny_vstup = false;
     int vstup;
     char buffer[100]; // Dostatečně velký buffer pro vstup
@@ -168,24 +175,29 @@ int platny_vstup(char *zprava, bool rozsah_cisel){
         printf("%s", zprava);       
             
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-            if (buffer[strlen(buffer) - 1] != '\n') {
-                printf("Vstup je příliš dlouhý. Zkuste to znovu.");
+            // Odstranění znaku nového řádku, pokud existuje
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n') {
+                buffer[len - 1] = '\0';
+            } else {
+                // Pokud nebyl načten znak nového řádku, vyčistíme zbytek vstupu
                 int c;
                 while ((c = getchar()) != '\n' && c != EOF);
-                continue;
             }
+
             vstup = validate_input(buffer);
             if (vstup == -1) {
-                printf("Neplatný vstup. Vlož číslo %d - %d", MIN_MENU, MAX_MENU);
+                printf("Neplatný vstup. Vlož číslo %d - %d\n", MIN_MENU, MAX_MENU);
                 continue;
             }
             if (is_value_in_range(vstup, rozsah_cisel)) {
                 platny_vstup = true;
             } else {
-                printf("Neplatný vstup. Vlož číslo %d - %d ", MIN_MENU, MAX_MENU);
+                printf("Neplatný vstup. Vlož číslo %d - %d\n", MIN_MENU, MAX_MENU);
             }
         } else {
-            printf("Chyba při čtení vstupu.");
+            printf("Chyba při čtení vstupu.\n");
+            // Vyčistíme vstupní buffer pro další pokus
             int c;
             while ((c = getchar()) != '\n' && c != EOF);
         }
@@ -193,7 +205,7 @@ int platny_vstup(char *zprava, bool rozsah_cisel){
     return vstup;
 }
 
-int validate_input(char *buffer) {
+int validate_input(const char *buffer) {
     char *endptr;
     errno = 0;
     long temp = strtol(buffer, &endptr, 10);
@@ -212,15 +224,14 @@ bool is_value_in_range(int value, bool rozsah_cisel) {
 }
 
 int tiskni_menu(){
-    printf("Menu:\n"
-    "1. Přidat prvek na začátek\n"
-    "2. Přidat prvek na konec\n"
-    "3. Vypsat seznam\n"
-    "4. Vyhledat prvek\n"
-    "5. Odstranit prvek\n"
-    "6. Zobrazit nápovědu\n"
-    "7. Ukončit program\n"
-    );
+    printf("\nMenu:\n"
+           "1. Přidat prvek na začátek\n"
+           "2. Přidat prvek na konec\n"
+           "3. Vypsat seznam\n"
+           "4. Vyhledat prvek\n"
+           "5. Odstranit prvek\n"
+           "6. Zobrazit nápovědu\n"
+           "7. Ukončit program\n");
 
     return platny_vstup("Vyberte možnost: ", true);
 }

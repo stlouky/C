@@ -5,7 +5,7 @@
             "name": "Launch link_list",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/link_list",  // Váš výstupní program
+            "program": "${workspaceFolder}/src/link_list",  // Váš výstupní program
             "args": [],  // Zde můžete přidat argumenty pro váš program, pokud nějaké má
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

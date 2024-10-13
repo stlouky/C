@@ -31,13 +31,13 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}/Linked_list/link_list.c",   // Hlavní soubor
-                "${workspaceFolder}/Linked_list/list.c",        // Další soubor obsahující funkci vypis_Seznam
+                "${workspaceFolder}/src/link_list.c",   // Hlavní soubor
+                "${workspaceFolder}/src/list.c",        // Další soubor obsahující funkce
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${workspaceFolder}/bin/link_list"      // Upravený výstupní soubor do složky bin
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"

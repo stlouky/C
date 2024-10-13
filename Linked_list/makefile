@@ -1,38 +1,52 @@
+# Kompilátor a volby kompilace
 CC = gcc
-CFLAGS = -Wall -g
-LDFLAGS =
-TARGET = program
-TEST_TARGET = test
-SRC_DIR = src
-TEST_DIR = test
-SRC = $(wildcard $(SRC_DIR)/*.c)
-TEST_SRC = $(wildcard $(TEST_DIR)/*.c)
-OBJS = $(SRC:$(SRC_DIR)/%.c=$(SRC_DIR)/%.o)
-TEST_OBJS = $(TEST_SRC:$(TEST_DIR)/%.c=$(TEST_DIR)/%.o)
+CFLAGS = -Wall -g -Isrc  # -Wall: zobrazit všechna varování, -g: přidat ladicí informace, -Isrc: zahrnout hlavičkové soubory ze složky src
+TEST_CFLAGS = -DTESTING  # Při kompilaci testů definovat makro TESTING
 
-.PHONY: all clean run test
+# Výstupní cíle
+TARGET = program  # Název hlavního programu
+TEST_TARGET = test_executable  # Název testovacího spustitelného souboru
 
-all: $(TARGET) $(TEST_TARGET)
+# Složky se zdrojovými kódy
+SRC_DIR = src  # Složka se zdrojovými soubory programu
+TEST_DIR = test  # Složka s testovacími soubory
 
-$(TARGET): $(OBJS)
-	@$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
+# Zdroje a objektové soubory
+SRC = $(filter-out $(SRC_DIR)/link_list.c, $(wildcard $(SRC_DIR)/*.c))  # Všechny zdrojové soubory kromě link_list.c
+TEST_SRC = $(wildcard $(TEST_DIR)/*.c)  # Všechny testovací zdrojové soubory
+OBJS = $(SRC:$(SRC_DIR)/%.c=$(SRC_DIR)/%.o)  # Vytvoření seznamu objektových souborů z hlavních zdrojových souborů
+TEST_OBJS = $(TEST_SRC:$(TEST_DIR)/%.c=$(TEST_DIR)/%.o) $(OBJS)  # Vytvoření seznamu objektových souborů pro testy a zahrnutí hlavních objektů
 
-$(TEST_TARGET): $(OBJS) $(TEST_OBJS)
-	@$(CC) $(CFLAGS) -o $(TEST_TARGET) $(OBJS) $(TEST_OBJS) $(LDFLAGS)
+.PHONY: all clean run run_tests  # Cíle, které nejsou skutečnými soubory
 
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
-	@$(CC) $(CFLAGS) -c $< -o $@
+# Hlavní cíl pro kompilaci celého programu
+all: $(TARGET)
 
-$(TEST_DIR)/%.o: $(TEST_DIR)/%.c
-	@$(CC) $(CFLAGS) -c $< -o $@
+# Kompilace hlavního programu
+$(TARGET): $(OBJS) src/link_list.o
+	@echo "Kompiluji hlavní program..."
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) src/link_list.o
 
+# Kompilace testovacího spustitelného souboru
+$(TEST_TARGET): $(TEST_OBJS)
+	@echo "Kompiluji testy..."
+	$(CC) $(CFLAGS) $(TEST_CFLAGS) -o $(TEST_TARGET) $(TEST_OBJS)
+
+# Spuštění hlavního programu
 run: $(TARGET)
+	@echo "Spouštím program..."
 	@./$(TARGET)
 
-test_run: $(TEST_TARGET)
+# Spuštění testovacího spustitelného souboru
+run_tests: $(TEST_TARGET)
+	@echo "Spouštím testy..."
 	@./$(TEST_TARGET)
 
+# Vyčištění všech binárních a objektových souborů
 clean:
-	@rm -f $(TARGET) $(OBJS) $(TEST_OBJS)
-	@rm -rf $(TEST_TARGET)
+	@echo "Čistím binární soubory a objektové soubory..."
+	find $(SRC_DIR) -name "*.o" -type f -delete
+	find $(TEST_DIR) -name "*.o" -type f -delete
+	rm -f $(TARGET)
+	rm -f $(TEST_TARGET)
 	@echo "Vyčištění bylo úspěšné."
